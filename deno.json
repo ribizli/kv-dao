@@ -3,7 +3,7 @@
     "test": "deno test --unstable-kv ./test/**/*_test.ts"
   },
   "name": "@rbzl/kv-dao",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "imports": {
     "assert": "https://deno.land/std@0.221.0/assert/mod.ts"
   },
