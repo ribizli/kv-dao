@@ -12,6 +12,7 @@
     "include": [
       "./README.md",
       "./LICENSE",
+      "./deno.json",
       "./mod.ts",
       "./src/**/*.ts"
     ]
