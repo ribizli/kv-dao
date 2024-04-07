@@ -27,7 +27,7 @@ type Selector =
 const PK = 'pk';
 const COUNT = '__count__';
 
-export abstract class Dao<T, IndexNames extends string = never> {
+export abstract class KvDao<T, IndexNames extends string = never> {
   protected readonly kv: Deno.Kv;
   protected readonly name: string;
   protected readonly primaryKey: KeyFuntion<T>;

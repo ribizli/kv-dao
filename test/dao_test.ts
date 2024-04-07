@@ -1,5 +1,5 @@
 import { assert, assertEquals, assertObjectMatch, assertRejects } from 'assert';
-import { Dao, keyFromJson, keyToJson } from '../mod.ts';
+import { keyFromJson, keyToJson, KvDao } from '../mod.ts';
 
 type Person = {
   id: number;
@@ -7,7 +7,7 @@ type Person = {
   createdAt: Date;
   age: number;
 };
-class PersonDao extends Dao<Person, 'name' | 'createdAt' | 'age'> {
+class PersonDao extends KvDao<Person, 'name' | 'createdAt' | 'age'> {
   constructor(kv: Deno.Kv) {
     super({
       kv,
