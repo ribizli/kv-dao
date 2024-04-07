@@ -73,11 +73,11 @@ export abstract class KvDao<T, IndexNames extends string = never> {
     }
   }
 
-  private getPrimaryKeyValue(entity: T) {
+  private getPrimaryKeyValue(entity: T): Deno.KvKeyPart[] {
     return [this.name, PK, ...this.getKeyValue(this.primaryKey, entity)];
   }
 
-  getPrimaryKey(entity: T) {
+  getPrimaryKey(entity: T): Deno.KvKeyPart[] {
     return this.getPrimaryKeyValue(entity);
   }
 
@@ -108,7 +108,7 @@ export abstract class KvDao<T, IndexNames extends string = never> {
     primaryKey: unknown[],
     updater: (current: T) => T,
     options: AtomicOption = {},
-  ) {
+  ): Promise<T> {
     const key = [this.name, PK, ...primaryKey.map(serializeKeyPart)];
 
     const entry = await this.kv.get<T>(key);
@@ -168,26 +168,26 @@ export abstract class KvDao<T, IndexNames extends string = never> {
     await this.commit(atomic, !!options.atomic);
   }
 
-  async deleteByKey(primaryKey: unknown[], options: AtomicOption = {}) {
+  async deleteByKey(primaryKey: unknown[], options: AtomicOption = {}): Promise<void> {
     const entity = await this.get(primaryKey);
     if (!entity) return;
     return this.delete(entity, options);
   }
 
-  async get(primaryKey: unknown[]) {
+  async get(primaryKey: unknown[]): Promise<T | null> {
     const kvKey = [this.name, PK, ...primaryKey.map(serializeKeyPart)];
     const entry = await this.kv.get<T>(kvKey);
     return entry.value;
   }
 
-  async getByUniqueIndex(indexName: IndexNames, key: unknown[]) {
+  async getByUniqueIndex(indexName: IndexNames, key: unknown[]): Promise<T | null> {
     if (!this.indices[indexName].unique) throw new DaoError('index not unique: ' + indexName);
     const kvKey = [this.name, indexName, ...key.map(serializeKeyPart)];
     const entry = await this.kv.get<T>(kvKey);
     return entry.value;
   }
 
-  async listByIndex(indexName: IndexNames | typeof PK, selector?: Selector, options?: Deno.KvListOptions) {
+  async listByIndex(indexName: IndexNames | typeof PK, selector?: Selector, options?: Deno.KvListOptions): Promise<[T[], string]> {
     const key = (parts: unknown[]) => [this.name, indexName, ...parts.map(serializeKeyPart)];
     const kvSelector = composeSelector(key, selector);
     const iter = this.kv.list<T>(kvSelector, options);
@@ -198,18 +198,18 @@ export abstract class KvDao<T, IndexNames extends string = never> {
     return [entities, iter.cursor] as const;
   }
 
-  async count() {
+  async count(): Promise<bigint> {
     return (await this.kv.get<Deno.KvU64>([this.name, COUNT, PK])).value?.value ?? 0n;
   }
 
-  async countByIndex(indexName: IndexNames, key: unknown[]) {
+  async countByIndex(indexName: IndexNames, key: unknown[]): Promise<bigint> {
     const index = this.indices[indexName];
     if (index.unique) return (await this.getByUniqueIndex(indexName, key)) ? 1n : 0n;
     const countKey = [this.name, COUNT, indexName, ...key.map(serializeKeyPart)];
     return (await this.kv.get<Deno.KvU64>(countKey)).value?.value ?? 0n;
   }
 
-  atomic() {
+  atomic(): Deno.AtomicOperation {
     return this.kv.atomic();
   }
 
@@ -256,7 +256,7 @@ function serializeKeyPart(keyPart: unknown): Deno.KvKeyPart {
   throw new DaoError(`unserializable key part: ${keyPart} (type: ${typeof keyPart})`);
 }
 
-export function keyToJson(key: unknown[]) {
+export function keyToJson(key: unknown[]): string {
   return JSON.stringify(key.map(serializeKeyPart), (_, keyPart) => {
     if (typeof keyPart === 'bigint') return `BigInt(${keyPart})`;
     return keyPart;
