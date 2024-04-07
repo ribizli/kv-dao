@@ -8,6 +8,14 @@
     "assert": "https://deno.land/std@0.221.0/assert/mod.ts"
   },
   "exports": "./mod.ts",
+  "publish": {
+    "include": [
+      "./README.md",
+      "./LICENSE",
+      "./mod.ts",
+      "./src/**/*.ts"
+    ]
+  },
   "unstable": [
     "kv"
   ],
