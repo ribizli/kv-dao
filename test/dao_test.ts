@@ -30,9 +30,11 @@ class PersonDao extends KvDao<Person, 'name' | 'createdAt' | 'age'> {
 }
 
 async function logDb(kv: Deno.Kv) {
+  console.log(`--- db:dump:start (${new Date().toISOString()}) ---`);
   for await (const entry of kv.list({ prefix: [] })) {
     console.log(entry.key, entry.value);
   }
+  console.log('--- db:dump:end ---');
 }
 
 Deno.test('test DAO operation', async () => {

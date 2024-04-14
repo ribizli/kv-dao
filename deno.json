@@ -5,7 +5,7 @@
   "name": "@rbzl/kv-dao",
   "version": "0.0.2",
   "imports": {
-    "assert": "https://deno.land/std@0.221.0/assert/mod.ts"
+    "assert": "https://deno.land/std@0.222.1/assert/mod.ts"
   },
   "exports": "./mod.ts",
   "publish": {
